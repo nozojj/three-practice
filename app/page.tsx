@@ -62,6 +62,18 @@ const planets: Planet[] = [
     position: [0, 0, -6],
     scale: 0.45,
   },
+
+  {
+    name: "about",
+    title: "About Me",
+    subtitle: "Frontend Developer Journey",
+    thumbnail: "/images/three.png",
+    description:
+      "React、Next.js、Three.jsを中心に学習中。AI SaaSやLP制作を通して、見た目だけでなく動きのあるWeb体験を作れるフロントエンド開発者を目指しています。",
+    link: "https://github.com/nozojj",
+    position: [0, 3, 2],
+    scale: 0.55,
+  },
 ];
 
 function Ring() {
@@ -343,7 +355,7 @@ export default function Home() {
               <Button
                 onClick={() => window.open(activePlanetData?.link, "_blank")}
               >
-                Visit Project
+                {activePlanet === "about" ? "View GitHub" : "Visit Project"}
               </Button>
 
               <Button variant="outline" onClick={resetCamera}>

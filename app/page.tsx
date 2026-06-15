@@ -16,6 +16,7 @@ type Planet = {
   github?: string;
   thumbnail: string;
   color: string;
+  skills: string[];
   position: [number, number, number];
   scale: number;
 };
@@ -30,6 +31,7 @@ const planets: Planet[] = [
     link: "https://ai-lp-generator.vercel.app",
     github: "https://github.com/nozojj/ai-lp-generator",
     color: "#50d890",
+    skills: ["Next.js", "TypeScript", "Prisma", "Clerk", "Stripe"],
     position: [0, 0.7, 0],
     scale: 0.9,
   },
@@ -43,6 +45,7 @@ const planets: Planet[] = [
     link: "https://github.com/nozojj",
     github: "https://github.com/nozojj/three-practice",
     color: "#b266ff",
+    skills: ["Three.js", "React Three Fiber", "Drei", "TypeScript"],
     position: [5, 0, 0],
     scale: 0.4,
   },
@@ -56,6 +59,7 @@ const planets: Planet[] = [
     link: "https://nozojj.github.io/hareru-izakaya-site/",
     github: "https://github.com/nozojj/hareru-izakaya-site",
     color: "#ffb347",
+    skills: ["HTML", "CSS", "Responsive Design"],
     position: [-5, 0, 0],
     scale: 0.5,
   },
@@ -69,6 +73,7 @@ const planets: Planet[] = [
     link: "https://nozojj.github.io/boost-gym-lp/",
     github: "https://github.com/nozojj/boost-gym-lp",
     color: "#ff5c5c",
+    skills: ["HTML", "CSS", "Landing Page"],
     position: [0, -4, -5],
     scale: 0.45,
   },
@@ -79,10 +84,11 @@ const planets: Planet[] = [
     subtitle: "Frontend Developer Journey",
     thumbnail: "/images/about.jpg",
     description:
-      "未経験からFrontend Developerを目指して学習中。React / Next.js を中心に、AI SaaS開発やランディングページ制作を通して実践的な開発経験を積んでいます。現在は Three.js を学習しながら、インタラクティブなWeb表現やユーザー体験を向上させるUI開発に挑戦しています。",
+      "未経験からFrontend Developerを目指して学習中。React / Next.js を中心にAI SaaS開発やLP制作に取り組んでいます。現在はThree.jsを学習しながら、インタラクティブなWeb表現とUI/UXの向上に挑戦しています。",
     link: "https://github.com/nozojj",
     github: "https://github.com/nozojj",
     color: "#66ccff",
+    skills: ["React", "Next.js", "Three.js", "UI Design"],
     position: [0, 4, 0],
     scale: 0.55,
   },
@@ -403,15 +409,7 @@ export default function Home() {
                 marginBottom: "16px",
               }}
             >
-              {[
-                "React",
-                "Next.js",
-                "TypeScript",
-                "Tailwind",
-                "Three.js",
-                "Prisma",
-                "Clerk",
-              ].map((skill) => (
+              {activePlanetData?.skills.map((skill) => (
                 <span
                   key={skill}
                   style={{
@@ -437,29 +435,37 @@ export default function Home() {
               <Button
                 onClick={() => window.open(activePlanetData?.link, "_blank")}
               >
-                {activePlanet === "about" ? "View GitHub" : "Visit Project"}
+                🚀 Visit Project
               </Button>
 
-              {activePlanet !== "about" && (
-                <Button
-                  variant="outline"
-                  onClick={() =>
-                    window.open(activePlanetData?.github, "_blank")
-                  }
-                >
-                  GitHub
-                </Button>
-              )}
+              <Button
+                variant="outline"
+                onClick={() => window.open(activePlanetData?.github, "_blank")}
+              >
+                💻 GitHub
+              </Button>
 
-              <Button variant="outline" onClick={resetCamera}>
-                Back
+              <Button variant="ghost" onClick={resetCamera}>
+                ← Back
               </Button>
             </div>
           </>
         ) : (
-          <p style={{ marginTop: "12px", opacity: 0.7 }}>
-            Click a planet to explore
-          </p>
+          <>
+            <p style={{ marginTop: "12px", opacity: 0.7 }}>
+              🪐 Click a planet to explore projects
+            </p>
+
+            <p
+              style={{
+                marginTop: "8px",
+                opacity: 0.5,
+                fontSize: "14px",
+              }}
+            >
+              Double click anywhere to reset view
+            </p>
+          </>
         )}
       </div>
     </div>

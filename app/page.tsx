@@ -84,7 +84,7 @@ const planets: Planet[] = [
     subtitle: "Frontend Developer Journey",
     thumbnail: "/images/about.jpg",
     description:
-      "未経験からFrontend Developerを目指して学習中。React / Next.js を中心にAI SaaS開発やLP制作に取り組んでいます。現在はThree.jsを学習しながら、インタラクティブなWeb表現とUI/UXの向上に挑戦しています。",
+      "未経験からFrontend Developerを目指して学習中。React / Next.js を中心にAI SaaS開発やLP制作に取り組んでいます。現在はThree.jsを学習しながら、インタラクティブなWeb表現とUI/UXの向上に挑戦しています。Goal:・フロントエンドエンジニア転職・AI SaaS開発・海外で働けるレベルの技術力習得",
     link: "https://github.com/nozojj",
     github: "https://github.com/nozojj",
     color: "#66ccff",

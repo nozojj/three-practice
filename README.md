@@ -57,5 +57,11 @@ https://three-practice-sigma.vercel.app
 nozojj
 
 Frontend Developerを目指して学習中。
-React / Next.js / Three.js を中心に
-AI SaaSやインタラクティブなWeb制作に挑戦しています。
+
+React / Next.js / Three.js を中心に学習。
+AI SaaS開発やインタラクティブなWeb表現に挑戦しています。
+
+Goal:
+・フロントエンドエンジニア転職
+・AI SaaS開発
+・海外で働けるレベルの技術習得

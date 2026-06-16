@@ -6,6 +6,8 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
+import { motion, AnimatePresence } from "framer-motion";
+import AuroraBackground from "@/components/AuroraBackground";
 
 type Planet = {
   name: string;
@@ -33,7 +35,7 @@ const planets: Planet[] = [
     color: "#50d890",
     skills: ["Next.js", "TypeScript", "Prisma", "Clerk", "Stripe"],
     position: [0, 0.7, 0],
-    scale: 0.9,
+    scale: 1.2,
   },
 
   {
@@ -92,9 +94,30 @@ const planets: Planet[] = [
     position: [0, 4, 0],
     scale: 0.55,
   },
+
+  {
+    name: "future",
+    title: "Future Project",
+    subtitle: "Interactive Portfolio v2・Shader・GSAP・WebGL Effects",
+    thumbnail: "/images/about.jpg",
+    description:
+      "現在開発中の新しいプロジェクト。Three.jsやAIを活用したWebアプリを企画中です。",
+    link: "https://github.com/nozojj",
+    github: "https://github.com/nozojj",
+    color: "#fff",
+    skills: ["Three.js", "AI", "Next.js"],
+    position: [-4, 4, 0],
+    scale: 0.45,
+  },
 ];
 
-function Ring() {
+function Ring({
+  position,
+  size,
+}: {
+  position: [number, number, number];
+  size: number;
+}) {
   const ref = useRef<THREE.Mesh>(null!);
 
   useFrame(() => {
@@ -102,8 +125,8 @@ function Ring() {
   });
 
   return (
-    <mesh ref={ref} position={[0, 0, 0]} rotation={[Math.PI / 2, 0.4, 0]}>
-      <torusGeometry args={[2.6, 0.02, 16, 100]} />
+    <mesh ref={ref} position={position} rotation={[Math.PI / 2, 0.4, 0]}>
+      <torusGeometry args={[size, 0.06, 16, 100]} />
       <meshStandardMaterial
         color="#9edcff"
         emissive="#9edcff"
@@ -117,10 +140,12 @@ function PlanetSystem({
   planets,
   onSelect,
   isMobile,
+  activePlanet,
 }: {
   planets: Planet[];
   onSelect: (name: string, position: [number, number, number]) => void;
   isMobile: boolean;
+  activePlanet: string;
 }) {
   const groupRef = useRef<THREE.Group>(null!);
 
@@ -131,20 +156,27 @@ function PlanetSystem({
   return (
     <group ref={groupRef}>
       {planets.map((planet) => (
-        <Box
-          key={planet.name}
-          position={planet.position}
-          scale={isMobile ? planet.scale * 0.7 : planet.scale}
-          name={planet.name}
-          link={planet.link}
-          color={planet.color}
-          followMouse={false}
-          onSelect={onSelect}
-          title={planet.title}
-        />
-      ))}
+        <group key={planet.name}>
+          {activePlanet === planet.name && (
+            <Ring
+              position={planet.position}
+              size={planet.name === "ai-lp" ? 3 : 1.4}
+            />
+          )}
 
-      <Ring />
+          <Box
+            position={planet.position}
+            scale={isMobile ? planet.scale * 0.7 : planet.scale}
+            isActive={activePlanet === planet.name}
+            name={planet.name}
+            link={planet.link}
+            color={planet.color}
+            followMouse={false}
+            onSelect={onSelect}
+            title={planet.title}
+          />
+        </group>
+      ))}
     </group>
   );
 }
@@ -158,6 +190,7 @@ function Box({
   link = "",
   color = "#9edcff",
   onSelect,
+  isActive,
 }: {
   position?: [number, number, number];
   scale?: number;
@@ -167,6 +200,7 @@ function Box({
   color?: string;
   title?: string;
   onSelect?: (name: string, position: [number, number, number]) => void;
+  isActive?: boolean;
 }) {
   const [selected, setSelected] = useState(false);
   const [hovered, setHovered] = useState(false);
@@ -187,6 +221,12 @@ function Box({
     if (followMouse) {
       meshRef.current.position.x +=
         (baseX + state.pointer.x * 3 - meshRef.current.position.x) * 0.05;
+    }
+
+    if (isActive) {
+      const pulse = 1.5 + Math.sin(state.clock.elapsedTime * 3) * 0.1;
+
+      meshRef.current.scale.set(pulse * scale, pulse * scale, pulse * scale);
     }
   });
 
@@ -213,7 +253,7 @@ function Box({
 
       {/* 本体 */}
       <mesh
-        scale={hovered ? 1.05 : 1}
+        scale={hovered ? 1.15 : isActive ? 1.5 : 1}
         onPointerOver={() => {
           setHovered(true);
           document.body.style.cursor = "pointer";
@@ -235,8 +275,10 @@ function Box({
           clearcoat={1}
           clearcoatRoughness={0}
           ior={1.5}
+          opacity={1}
+          transparent
           emissive={color}
-          emissiveIntensity={hovered ? 0.8 : 0}
+          emissiveIntensity={hovered ? 0.8 : isActive ? 2.5 : 0}
         />
       </mesh>
     </group>
@@ -315,12 +357,16 @@ export default function Home() {
         camera={{
           position: isMobile ? [0, 0, 15] : [0, 0, 8],
         }}
-        style={{ background: "#050816" }}
+        style={{
+          background:
+            "radial-gradient(circle at center, #0f172a 0%, #020617 100%)",
+        }}
       >
         <CameraMove enabled={!targetPosition} />
         <CameraFocus target={targetPosition} />
 
         {/* <Environment preset="sunset" /> */}
+        <AuroraBackground />
         <Sparkles count={80} scale={15} size={1.5} speed={0.2} opacity={0.5} />
         <Stars radius={150} depth={80} count={8000} fade />
         <ambientLight intensity={0.5} />
@@ -330,6 +376,7 @@ export default function Home() {
           <PlanetSystem
             planets={planets}
             isMobile={isMobile}
+            activePlanet={activePlanet}
             onSelect={(name, position) => {
               setActivePlanet(name);
               setTargetPosition(position);
@@ -358,115 +405,158 @@ export default function Home() {
           boxShadow: "0 0 40px rgba(158,220,255,0.12)",
         }}
       >
-        {activePlanetData && (
-          <Image
-            src={activePlanetData.thumbnail}
-            alt={activePlanetData.title}
-            width={400}
-            height={220}
-            style={{
-              width: "100%",
-              height: "260px",
-              objectFit: "cover",
-              borderRadius: "12px",
-              marginBottom: "16px",
-            }}
-          />
-        )}
+        <AnimatePresence mode="wait">
+          {activePlanet && activePlanetData ? (
+            <>
+              <div
+                style={{
+                  display: "inline-block",
+                  padding: "4px 10px",
+                  borderRadius: "999px",
+                  background: "rgba(80,216,144,0.2)",
+                  border: "1px solid rgba(80,216,144,0.4)",
+                  fontSize: "12px",
+                  marginBottom: "12px",
+                }}
+              >
+                Selected Project
+              </div>
 
-        <h1
-          style={{
-            fontSize: isMobile ? "1.5rem" : "3rem",
-            fontWeight: 800,
-            lineHeight: 0.9,
-            letterSpacing: "-3px",
-            marginBottom: "20px",
-          }}
-        >
-          {activePlanetData?.title ?? "Developer Galaxy"}
-        </h1>
+              <motion.h1
+                style={{
+                  fontSize: "48px",
+                  fontWeight: "800",
+                  marginBottom: "8px",
+                }}
+                initial={{
+                  opacity: 0,
+                  y: 30,
+                }}
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                }}
+                transition={{
+                  delay: 0.1,
+                  duration: 0.4,
+                }}
+              >
+                {activePlanetData.title}
+              </motion.h1>
 
-        <p
-          style={{
-            color: "#9edcff",
-            fontWeight: 500,
-            marginBottom: "16px",
-          }}
-        >
-          {activePlanetData?.subtitle ?? "Frontend Developer Portfolio"}
-        </p>
+              <p>{activePlanetData?.subtitle}</p>
 
-        {activePlanet ? (
-          <>
-            <p style={{ marginTop: "12px" }}>{activePlanetData?.description}</p>
-
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "8px",
-                marginTop: "16px",
-                marginBottom: "16px",
-              }}
-            >
-              {activePlanetData?.skills.map((skill) => (
-                <span
-                  key={skill}
+              <motion.div
+                key={activePlanet}
+                initial={{
+                  opacity: 0,
+                  x: 40,
+                  scale: 0.92,
+                }}
+                animate={{
+                  opacity: 1,
+                  x: 0,
+                  scale: 1,
+                }}
+                exit={{
+                  opacity: 0,
+                  x: -40,
+                  scale: 0.92,
+                }}
+                transition={{
+                  type: "spring",
+                  stiffness: 120,
+                  damping: 18,
+                }}
+              >
+                <Image
+                  src={activePlanetData.thumbnail}
+                  alt={activePlanetData.title}
+                  width={400}
+                  height={220}
                   style={{
-                    padding: "6px 12px",
-                    borderRadius: "999px",
-                    background: "rgba(255,255,255,0.08)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    fontSize: "12px",
+                    width: "100%",
+                    height: "260px",
+                    objectFit: "cover",
+                    borderRadius: "12px",
+                    marginBottom: "16px",
                   }}
+                />
+              </motion.div>
+
+              <p style={{ marginTop: "12px" }}>
+                {activePlanetData?.description}
+              </p>
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "8px",
+                  marginTop: "16px",
+                  marginBottom: "16px",
+                }}
+              >
+                {activePlanetData?.skills.map((skill) => (
+                  <span
+                    key={skill}
+                    style={{
+                      padding: "6px 12px",
+                      borderRadius: "999px",
+                      background: "rgba(255,255,255,0.08)",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                      fontSize: "12px",
+                    }}
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  gap: "8px",
+                  marginTop: "16px",
+                }}
+              >
+                <Button
+                  onClick={() => window.open(activePlanetData?.link, "_blank")}
                 >
-                  {skill}
-                </span>
-              ))}
-            </div>
+                  🚀 Visit Project
+                </Button>
 
-            <div
-              style={{
-                display: "flex",
-                gap: "8px",
-                marginTop: "16px",
-              }}
-            >
-              <Button
-                onClick={() => window.open(activePlanetData?.link, "_blank")}
+                <Button
+                  variant="outline"
+                  onClick={() =>
+                    window.open(activePlanetData?.github, "_blank")
+                  }
+                >
+                  💻 GitHub
+                </Button>
+
+                <Button variant="ghost" onClick={resetCamera}>
+                  ← Back
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <p style={{ marginTop: "12px", opacity: 0.7 }}>
+                🪐 Click a planet to explore projects
+              </p>
+
+              <p
+                style={{
+                  marginTop: "8px",
+                  opacity: 0.5,
+                  fontSize: "14px",
+                }}
               >
-                🚀 Visit Project
-              </Button>
-
-              <Button
-                variant="outline"
-                onClick={() => window.open(activePlanetData?.github, "_blank")}
-              >
-                💻 GitHub
-              </Button>
-
-              <Button variant="ghost" onClick={resetCamera}>
-                ← Back
-              </Button>
-            </div>
-          </>
-        ) : (
-          <>
-            <p style={{ marginTop: "12px", opacity: 0.7 }}>
-              🪐 Click a planet to explore projects
-            </p>
-
-            <p
-              style={{
-                marginTop: "8px",
-                opacity: 0.5,
-                fontSize: "14px",
-              }}
-            >
-              Double click anywhere to reset view
-            </p>
-          </>
-        )}
+                Double click anywhere to reset view
+              </p>
+            </>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
